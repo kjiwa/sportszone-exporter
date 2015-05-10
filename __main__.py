@@ -2,7 +2,7 @@
 
 import csv
 import datetime
-import gflags;
+import gflags
 import logging
 import pytz
 import pytz.reference
