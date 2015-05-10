@@ -2,13 +2,13 @@
 
 import csv
 import datetime
-import gflags
+import gflags;
+import logging
 import pytz
 import pytz.reference
 import sportszone
 import sys
 import time
-import translator
 
 FLAGS = gflags.FLAGS
 
@@ -19,6 +19,8 @@ gflags.DEFINE_integer('season_id', None, 'The Sportszone season ID.')
 gflags.DEFINE_string('output_file', 'schedule.csv', 'The output file.')
 gflags.DEFINE_string('home_color', 'White', 'The color of the home jerseys.')
 gflags.DEFINE_string('away_color', 'Black', 'The color of the away jerseys.')
+gflags.DEFINE_multistring(
+    'arena_map', [], 'A map from Sportszone to Team Cowboy arena names.')
 
 def _precondition(cond, msg):
   """Asserts the truth of a precondition or fails.
@@ -28,9 +30,27 @@ def _precondition(cond, msg):
     msg: A message to display upon failure.
   """
   if not cond:
-    sys.stderr.write(msg)
-    sys.stderr.write('%s\\nUsage: %s ARGS\\n%s' % (e, sys.argv[0], FLAGS))
+    logging.error(msg)
+    print '%s\\nUsage: %s ARGS\\n%s' % (e, sys.argv[0], FLAGS)
     sys.exit(1)
+
+def _create_arena_map():
+  """Creates a map from Sportszone to Team Cowboy arena names from flag values.
+
+  Returns:
+    A map of arena names.
+  """
+  result = {}
+
+  for value in FLAGS.arena_map:
+    parts = value.split('=')
+    if len(parts) != 2:
+      logging.warning('Ignoring invalid arena_map argument: %s', value)
+      continue
+
+    result[parts[0]] = parts[1]
+
+  return result
 
 def _tz():
   """Returns the local timezone, formatted for import into Team Cowboy.
@@ -52,13 +72,12 @@ def _tz():
 
   return result[pytz.reference.LocalTimezone().tzname(datetime.datetime.now())]
 
-def _write_csv(games, interpreter):
+def _write_csv(games, arena_map):
   """Writes a list of games to a CSV file suitable for importing to Team Cowboy.
 
   Args:
     games: A list of games to write.
-    interpreter: A translator for mapping values between Sportszone and Team
-        Cowboy.
+    arena_map: A map from Sportszone to Team Cowboy arena names.
   """
   with open(FLAGS.output_file, 'wb') as csvfile:
     writer = csv.writer(csvfile, delimiter='\t')
@@ -85,7 +104,7 @@ def _write_csv(games, interpreter):
       end_time = dt.strftime('%I:%M %p')
 
       home_away = game.home_away.title()
-      arena = interpreter.arena.get(game.arena, game.arena)
+      arena = arena_map.get(game.arena, game.arena)
 
       if game.home_away == 'HOME':
         shirt_color = FLAGS.home_color
@@ -115,9 +134,8 @@ def main(argv):
 
   sz = sportszone.Sportszone(FLAGS.sportszone_url, FLAGS.league_id)
   games = sz.get_schedule(FLAGS.team_id, FLAGS.season_id)
-  interpreter = translator.load(FLAGS.league_id)
 
-  _write_csv(games, interpreter)
+  _write_csv(games, _create_arena_map())
 
 if __name__ == '__main__':
   main(sys.argv)

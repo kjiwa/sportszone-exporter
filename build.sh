@@ -36,7 +36,7 @@ function teardown() {
 # Builds the output binary.
 function build() {
   TMP_FILE=$(mktemp -u --suffix=.zip exporterXXX)
-  zip ${TMP_FILE} __main__.py sportszone.py translator.py
+  zip ${TMP_FILE} __main__.py sportszone.py
   echo "#!/usr/bin/env python" | cat - ${TMP_FILE} > ${FLAGS_out}
   chmod +x ${FLAGS_out}
   rm ${TMP_FILE}
