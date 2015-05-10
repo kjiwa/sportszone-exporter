@@ -9,9 +9,11 @@ import pytz.reference
 import sportszone
 import sys
 import time
+import urlparse
 
 FLAGS = gflags.FLAGS
 
+gflags.DEFINE_string('url', None, 'The URL of a schedule page.')
 gflags.DEFINE_string('sportszone_url', None, 'The base Sportszone URL.')
 gflags.DEFINE_integer('league_id', None, 'The Sportszone league ID.')
 gflags.DEFINE_integer('team_id', None, 'The Sportszone team ID.')
@@ -127,13 +129,26 @@ def main(argv):
     print '%s\\nUsage: %s ARGS\\n%s' % (e, sys.argv[0], FLAGS)
     sys.exit(1)
 
-  _precondition(FLAGS.sportszone_url, 'A Sportszone URL is required.')
-  _precondition(FLAGS.league_id, 'A Sportszone league ID is required.')
-  _precondition(FLAGS.team_id, 'A Sportszone team ID is required.')
-  _precondition(FLAGS.season_id, 'A Sportszone season ID is required.')
+  if FLAGS.url:
+    url = urlparse.urlparse(FLAGS.url)
+    qs = urlparse.parse_qs(url.query)
+    sportszone_url = '%s://%s%s' % (url.scheme, url.netloc, url.path)
+    league_id = int(qs['LeagueID'][0]) if 'LeagueID' in qs else None
+    team_id = int(qs['TeamID'][0]) if 'TeamID' in qs else None
+    season_id = int(qs['SeasonID'][0]) if 'SeasonID' in qs else None
+  else:
+    sportszone_url = FLAGS.sportszone_url
+    league_id = FLAGS.league_id
+    team_id = FLAGS.team_id
+    season_id = FLAGS.season_id
 
-  sz = sportszone.Sportszone(FLAGS.sportszone_url, FLAGS.league_id)
-  games = sz.get_schedule(FLAGS.team_id, FLAGS.season_id)
+  _precondition(sportszone_url, 'A Sportszone URL is required.')
+  _precondition(league_id, 'A Sportszone league ID is required.')
+  _precondition(team_id, 'A Sportszone team ID is required.')
+  _precondition(season_id, 'A Sportszone season ID is required.')
+
+  sz = sportszone.Sportszone(sportszone_url, league_id)
+  games = sz.get_schedule(team_id, season_id)
 
   _write_csv(games, _create_arena_map())
 
