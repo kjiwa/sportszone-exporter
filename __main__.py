@@ -129,18 +129,26 @@ def main(argv):
     print '%s\\nUsage: %s ARGS\\n%s' % (e, sys.argv[0], FLAGS)
     sys.exit(1)
 
+  sportszone_url = FLAGS.sportszone_url
+  league_id = FLAGS.league_id
+  team_id = FLAGS.team_id
+  season_id = FLAGS.season_id
+
   if FLAGS.url:
     url = urlparse.urlparse(FLAGS.url)
     qs = urlparse.parse_qs(url.query)
-    sportszone_url = '%s://%s%s' % (url.scheme, url.netloc, url.path)
-    league_id = int(qs['LeagueID'][0]) if 'LeagueID' in qs else None
-    team_id = int(qs['TeamID'][0]) if 'TeamID' in qs else None
-    season_id = int(qs['SeasonID'][0]) if 'SeasonID' in qs else None
-  else:
-    sportszone_url = FLAGS.sportszone_url
-    league_id = FLAGS.league_id
-    team_id = FLAGS.team_id
-    season_id = FLAGS.season_id
+
+    if not sportszone_url:
+      sportszone_url = '%s://%s%s' % (url.scheme, url.netloc, url.path)
+
+    if not league_id:
+      league_id = int(qs.get('LeagueID', [league_id])[0])
+
+    if not team_id:
+      team_id = int(qs.get('TeamID', [str(team_id)])[0])
+
+    if not season_id:
+      season_id = int(qs.get('SeasonID', [str(season_id)])[0])
 
   _precondition(sportszone_url, 'A Sportszone URL is required.')
   _precondition(league_id, 'A Sportszone league ID is required.')
