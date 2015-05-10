@@ -48,7 +48,5 @@ if [ ${FLAGS_clean} -eq ${FLAGS_TRUE} ]; then
   exit
 fi
 
-setup
 build
 [ ${#@} -gt 0 ] && run $@
-teardown
