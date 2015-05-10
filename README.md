@@ -46,6 +46,9 @@ This will generate a file named schedule.csv in the current directory (this can 
     flags:
     
     ./exporter:
+      --arena_map: A map from Sportszone to Team Cowboy arena names.;
+        repeat this option to specify a list of values
+        (default: '[]')
       --away_color: The color of the away jerseys.
         (default: 'Black')
       -?,--[no]help: show this help
