@@ -11,9 +11,9 @@ I've included a flagfile that can be used with the Greater Seattle Hockey League
 
 ## Example
 
-In most cases you will execute the exporter with a URL and a file containing a map of Sportszone and Team Cowboy arena names (e.g. [gshl.flags](gshl.flags)). The URL should be to a Sportszone schedule, e.g. http://www.gshockey.com/site/3333/page.asp?Site=9941&page=Teams&LeagueID=9941&SeasonID=39&DivisionID=100&TeamID=470&Section=Schedule. Specifically, the URL must have values for LeagueID, TeamID, and SeasonID in its query parameters.
+In most cases you will execute the exporter with a URL and a file containing a map of Sportszone and Team Cowboy arena names (e.g. [gshl.flags](gshl.flags)). The URL should be to a Sportszone schedule, e.g. [Amazon's winter 2014/2015 season](http://www.gshockey.com/site/3333/page.asp?Site=9941&page=Teams&LeagueID=9941&SeasonID=39&DivisionID=100&TeamID=470&Section=Schedule). Specifically, the URL must have values for LeagueID, TeamID, and SeasonID in its query parameters.
 
-Suppose we want a CSV of the games listed for [Team Amazon's winter 2014/2015 season](http://www.gshockey.com/site/3333/page.asp?Site=9941&page=Teams&LeagueID=9941&SeasonID=39&DivisionID=100&TeamID=470&Section=Schedule). First we will create an arena name map and put it into a file, e.g. arenas.flags:
+Create a file with arena name mappings in it, e.g. arenas.flags:
 
     --arena_map=Castle=Castle Ice Arena
     --arena_map=Kent=Kent Valley Ice Center
