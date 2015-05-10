@@ -44,10 +44,7 @@ function build() {
 
 # Runs the output binary.
 function run() {
-  [ ! -d ${FLAGS_envname} ] && virtualenv ${FLAGS_envname}
-  source ${FLAGS_envname}/bin/activate
   ./exporter $@
-  deactivate
 }
 
 if [ ${FLAGS_clean} -eq ${FLAGS_TRUE} ]; then
