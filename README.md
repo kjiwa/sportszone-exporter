@@ -2,7 +2,7 @@
 
 ## Overview
 
-This tool scrapes schedule data from a Sportszone instance and exports it into a CSV suitable for uploading to Team Cowboy. It contains some addition customizations for the Greater Seattle Hockey League.
+This tool scrapes schedule data from a Sportszone instance and exports it into a CSV suitable for uploading to Team Cowboy. It contains some additional customizations for the Greater Seattle Hockey League.
 
 ## Example
 
