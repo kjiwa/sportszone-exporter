@@ -2,11 +2,13 @@
 
 ## Overview
 
-This tool scrapes schedule data from a Sportszone instance and exports it into a CSV suitable for uploading to Team Cowboy. It contains some additional customizations for the Greater Seattle Hockey League.
+This tool scrapes schedule data from a Sportszone instance and exports it into a CSV suitable for uploading to Team Cowboy.
+
+I've included a flagfile that can be used with the Greater Seattle Hockey League that contains the base URL, league ID, and arena map.
 
 ## Example
 
-Suppose you want a CSV of the games listed for [Team Amazon's winter 2014/2015 season](http://www.gshockey.com/site/3333/page.asp?Site=9941&page=Teams&LeagueID=9941&SeasonID=39&DivisionID=100&TeamID=470&Section=Schedule). Take note of the query parameters in the URL:
+Suppose we want a CSV of the games listed for [Team Amazon's winter 2014/2015 season](http://www.gshockey.com/site/3333/page.asp?Site=9941&page=Teams&LeagueID=9941&SeasonID=39&DivisionID=100&TeamID=470&Section=Schedule). Take note of the query parameters in the URL:
 
 Attribute     | Value
 --------------|------
@@ -15,12 +17,18 @@ Attribute     | Value
 **Team ID**   | 470
 **Season ID** | 39
 
+In addition to these attributes, we need a way to map Sportszone and Team Cowboy arena names. For example, "Castle" may map to "Castle Ice Arena" and "Kent" may map to "Kent Valley Ice Center". We will put these into a flagfile, e.g. arenas.flags:
+
+    --arena_map=Castle=Castle Ice Arena
+    --arena_map=Kent=Kent Valley Ice Center
+
 With these attributes we can run the exporter:
 
     $ exporter --sportszone_url=http://www.gshockey.com/site/3333/page.asp \
                --league_id=9941 \
                --team_id=470 \
-               --season_id=39
+               --season_id=39 \
+               --flagfile=arenas.flags
 
 This will generate a file named schedule.csv in the current directory (this can be modified with the --output_file flag).
 
