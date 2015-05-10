@@ -2,6 +2,10 @@
 
 # A script to build the exporter. A virtualenv environment is created for
 # dependencies. After the build a standalone executable will be produced.
+#
+# If any program arguments are specified (i.e. anything preceding the final --)
+# then the output binary is executed within a virtualenv environment with those
+# arguments.
 
 source shflags.sh
 
@@ -21,18 +25,6 @@ function clean() {
   rm -rf ${FLAGS_envname} ${FLAGS_out}
 }
 
-# Creates a virtualenv environment and installs dependencies.
-function setup() {
-  [ ! -d ${FLAGS_envname} ] && virtualenv ${FLAGS_envname}
-  source ${FLAGS_envname}/bin/activate
-  pip install lxml python-gflags pytz requests
-}
-
-# Exits the build/run environment.
-function teardown() {
-  deactivate
-}
-
 # Builds the output binary.
 function build() {
   TMP_FILE=$(mktemp -u --suffix=.zip exporterXXX)
@@ -42,9 +34,13 @@ function build() {
   rm ${TMP_FILE}
 }
 
-# Runs the output binary.
+# Creates a virtualenv environment and Runs the output binary in it.
 function run() {
+  [ ! -d ${FLAGS_envname} ] && virtualenv ${FLAGS_envname}
+  source ${FLAGS_envname}/bin/activate
+  pip install lxml python-gflags pytz requests
   ./exporter $@
+  deactivate
 }
 
 if [ ${FLAGS_clean} -eq ${FLAGS_TRUE} ]; then
@@ -54,5 +50,5 @@ fi
 
 setup
 build
-run $@
+[ ${#@} -gt 0 ] && run $@
 teardown
