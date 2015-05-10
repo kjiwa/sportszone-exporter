@@ -142,7 +142,7 @@ def main(argv):
       sportszone_url = '%s://%s%s' % (url.scheme, url.netloc, url.path)
 
     if not league_id:
-      league_id = int(qs.get('LeagueID', [league_id])[0])
+      league_id = int(qs.get('LeagueID', [str(league_id)])[0])
 
     if not team_id:
       team_id = int(qs.get('TeamID', [str(team_id)])[0])
