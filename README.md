@@ -4,30 +4,23 @@
 
 This tool scrapes schedule data from a Sportszone instance and exports it into a CSV suitable for uploading to Team Cowboy.
 
-I've included a flagfile that can be used with the Greater Seattle Hockey League that contains the base URL, league ID, and arena map.
+I've included a flagfile that can be used with the Greater Seattle Hockey League that contains the base URL, league ID, and arena map. Use it like this:
+
+    $ exporter --url="http://www.gshockey.com/site/3333/page.asp?Site=9941&page=Teams&LeagueID=9941&SeasonID=41&DivisionID=100&TeamID=470&Section=Schedule" \
+               --flagfile=gshl.flags
 
 ## Example
 
-Suppose we want a CSV of the games listed for [Team Amazon's winter 2014/2015 season](http://www.gshockey.com/site/3333/page.asp?Site=9941&page=Teams&LeagueID=9941&SeasonID=39&DivisionID=100&TeamID=470&Section=Schedule). Take note of the query parameters in the URL:
+In most cases you will execute the exporter with a URL and a file containing a map of Sportszone and Team Cowboy arena names (e.g. [gshl.flags](gshl.flags)). The URL should be to a Sportszone schedule, e.g. http://www.gshockey.com/site/3333/page.asp?Site=9941&page=Teams&LeagueID=9941&SeasonID=39&DivisionID=100&TeamID=470&Section=Schedule. Specifically, the URL must have values for LeagueID, TeamID, and SeasonID in its query parameters.
 
-Attribute     | Value
---------------|------
-**Base URL**  | http://www.gshockey.com/site/3333/page.asp
-**League ID** | 9941
-**Team ID**   | 470
-**Season ID** | 39
-
-In addition to these attributes, we need a way to map Sportszone and Team Cowboy arena names. For example, "Castle" may map to "Castle Ice Arena" and "Kent" may map to "Kent Valley Ice Center". We will put these into a flagfile, e.g. arenas.flags:
+Suppose we want a CSV of the games listed for [Team Amazon's winter 2014/2015 season](http://www.gshockey.com/site/3333/page.asp?Site=9941&page=Teams&LeagueID=9941&SeasonID=39&DivisionID=100&TeamID=470&Section=Schedule). First we will create an arena name map and put it into a file, e.g. arenas.flags:
 
     --arena_map=Castle=Castle Ice Arena
     --arena_map=Kent=Kent Valley Ice Center
 
 With these attributes we can run the exporter:
 
-    $ exporter --sportszone_url=http://www.gshockey.com/site/3333/page.asp \
-               --league_id=9941 \
-               --team_id=470 \
-               --season_id=39 \
+    $ exporter --url="http://www.gshockey.com/site/3333/page.asp?Site=9941&page=Teams&LeagueID=9941&SeasonID=39&DivisionID=100&TeamID=470&Section=Schedule"
                --flagfile=arenas.flags
 
 This will generate a file named schedule.csv in the current directory (this can be modified with the --output_file flag).
@@ -65,6 +58,7 @@ This will generate a file named schedule.csv in the current directory (this can 
       --sportszone_url: The base Sportszone URL.
       --team_id: The Sportszone team ID.
         (an integer)
+      --url: The URL of a schedule page.
     
     gflags:
       --flagfile: Insert flag definitions from the given file into the command line.
