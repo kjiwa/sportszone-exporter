@@ -4,10 +4,7 @@
 
 This tool scrapes schedule data from a Sportszone instance and exports it into a CSV suitable for uploading to Team Cowboy.
 
-I've included a flagfile that can be used with the Greater Seattle Hockey League that contains the base URL, league ID, and arena map. Use it like this:
-
-    $ exporter --url="http://www.gshockey.com/site/3333/page.asp?Site=9941&page=Teams&LeagueID=9941&SeasonID=41&DivisionID=100&TeamID=470&Section=Schedule" \
-               --flagfile=gshl.flags
+I've included a flagfile that can be used with the Greater Seattle Hockey League that contains the base URL, league ID, and arena map. Use it by specifying --flagfile=gshl.flags in your command line.
 
 ## Example
 
