@@ -26,8 +26,8 @@ This will generate a file named schedule.csv in the current directory (this can 
 
     $ head -n5 schedule.csv
     Event Type      Start Date      Start Time      End Date        End Time        Timezone ID     Home or Away    Opponent/Event Title    Location Name   Shirt Color     Opponent Shirt Color    Allow RSVPs     Send Reminders  Notes/Comments
-    game    2014-10-02      11:00 PM        2014-10-03      12:00 AM        US/Pacific      Home    Shockers        Castle Ice Arena        Black   White   Yes     Yes
-    game    2014-10-09      09:35 PM        2014-10-09      10:35 PM        US/Pacific      Home    GLY Construction        Castle Ice Arena        Black   White   Yes     Yes
+    game    2014-10-02      11:00 PM        2014-10-03      12:00 AM        US/Pacific      Home    Shockers        Castle Ice Arena        White   Black   Yes     Yes
+    game    2014-10-09      09:35 PM        2014-10-09      10:35 PM        US/Pacific      Home    GLY Construction        Castle Ice Arena        White   Black   Yes     Yes
     game    2014-10-14      09:35 PM        2014-10-14      10:35 PM        US/Pacific      Away    Mustangs 2      Castle Ice Arena        Black   White   Yes     Yes
     game    2014-10-21      09:50 PM        2014-10-21      10:50 PM        US/Pacific      Away    Acme    Lynnwood Ice Center     Black   White   Yes     Yes
 
