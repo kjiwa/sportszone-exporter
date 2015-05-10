@@ -29,6 +29,7 @@ def _precondition(cond, msg):
   """
   if not cond:
     sys.stderr.write(msg)
+    sys.stderr.write('%s\\nUsage: %s ARGS\\n%s' % (e, sys.argv[0], FLAGS))
     sys.exit(1)
 
 def _tz():
@@ -86,7 +87,7 @@ def _write_csv(games, interpreter):
       home_away = game.home_away.title()
       arena = interpreter.arena.get(game.arena, game.arena)
 
-      if game.home_away is 'HOME':
+      if game.home_away == 'HOME':
         shirt_color = FLAGS.home_color
         opponent_shirt_color = FLAGS.away_color
       else:
