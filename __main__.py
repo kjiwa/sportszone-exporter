@@ -4,12 +4,12 @@ import csv
 import datetime
 import gflags
 import logging
-import pytz
-import pytz.reference
 import sportszone
 import sys
 import time
 import urlparse
+import pytz
+import pytz.reference
 
 FLAGS = gflags.FLAGS
 
@@ -24,6 +24,7 @@ gflags.DEFINE_string('away_color', 'Black', 'The color of the away jerseys.')
 gflags.DEFINE_multistring(
     'arena_map', [], 'A map from Sportszone to Team Cowboy arena names.')
 
+
 def _precondition(cond, msg):
   """Asserts the truth of a precondition or fails.
 
@@ -33,8 +34,9 @@ def _precondition(cond, msg):
   """
   if not cond:
     logging.error(msg)
-    print '%s\\nUsage: %s ARGS\\n%s' % (e, sys.argv[0], FLAGS)
+    print '%s\\nUsage: %s ARGS\\n%s' % (msg, sys.argv[0], FLAGS)
     sys.exit(1)
+
 
 def _create_arena_map():
   """Creates a map from Sportszone to Team Cowboy arena names from flag values.
@@ -53,6 +55,7 @@ def _create_arena_map():
     result[parts[0]] = parts[1]
 
   return result
+
 
 def _tz():
   """Returns the local timezone, formatted for import into Team Cowboy.
@@ -73,6 +76,7 @@ def _tz():
       result[key] = tz
 
   return result[pytz.reference.LocalTimezone().tzname(datetime.datetime.now())]
+
 
 def _write_csv(games, arena_map):
   """Writes a list of games to a CSV file suitable for importing to Team Cowboy.
@@ -122,6 +126,7 @@ def _write_csv(games, arena_map):
           notes_comments
       ])
 
+
 def main(argv):
   try:
     argv = FLAGS(argv)
@@ -159,6 +164,7 @@ def main(argv):
   games = sz.get_schedule(team_id, season_id)
 
   _write_csv(games, _create_arena_map())
+
 
 if __name__ == '__main__':
   main(sys.argv)

@@ -7,11 +7,11 @@ information.
 import collections
 import requests
 import time
-from lxml import etree
 from lxml import html
 
 Game = collections.namedtuple(
     'Game', ['game_datetime', 'arena', 'home_away', 'opponent'])
+
 
 class SportszoneException(Exception):
   """An exception thrown by the Sportszone client."""
@@ -22,6 +22,7 @@ class SportszoneException(Exception):
     Args:
       cause: The causing exception.
     """
+    super(SportszoneException, self).__init__()
     self._cause = cause
 
   def __str__(self):
@@ -31,6 +32,7 @@ class SportszoneException(Exception):
       A string representation of the exception.
     """
     return repr(self._cause)
+
 
 class Sportszone(object):
   """A Sportszone client."""
