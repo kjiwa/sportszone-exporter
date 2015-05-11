@@ -34,7 +34,7 @@ function build() {
   rm ${TMP_FILE}
 }
 
-# Creates a virtualenv environment and Runs the output binary in it.
+# Creates a virtualenv environment and runs the output binary in it.
 function run() {
   [ ! -d ${FLAGS_envname} ] && virtualenv ${FLAGS_envname}
   source ${FLAGS_envname}/bin/activate
