@@ -7,7 +7,7 @@
 # then the output binary is executed within a virtualenv environment with those
 # arguments.
 
-source shflags.sh
+source third_party/shflags.sh
 
 DEFINE_boolean clean false "Clean the directory of build artifacts."
 DEFINE_string envname env "The virtualenv environment to create."
