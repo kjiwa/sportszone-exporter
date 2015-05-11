@@ -24,7 +24,7 @@ $ exporter --url="http://www.gshockey.com/site/3333/page.asp?Site=9941&page=Team
            --flagfile=arenas.flags
 ```
 
-This will generate a file named schedule.csv in the current directory (this can be modified with the --output_file flag).
+This will generate a file named schedule.csv in the current directory (this can be modified with the `--output_file` flag).
 
 ```
 $ head -n5 schedule.csv
