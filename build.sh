@@ -28,7 +28,7 @@ function clean() {
 # Builds the output binary.
 function build() {
   TMP_FILE=$(mktemp -u --suffix=.zip)
-  zip ${TMP_FILE} __main__.py sportszone.py
+  zip ${TMP_FILE} __main__.py sportszone.py teamcowboy.py
   echo "#!/usr/bin/env python" | cat - ${TMP_FILE} > ${FLAGS_out}
   chmod +x ${FLAGS_out}
   rm ${TMP_FILE}
@@ -38,7 +38,7 @@ function build() {
 function run() {
   [ ! -d ${FLAGS_envname} ] && virtualenv ${FLAGS_envname}
   source ${FLAGS_envname}/bin/activate
-  pip install lxml python-gflags pytz requests
+  pip install lxml python-gflags pytz
   ./${FLAGS_out} $@
   deactivate
 }

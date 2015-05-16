@@ -1,19 +1,29 @@
-"""A script that generates a CSV file of games to import into Team Cowboy."""
+"""A script that generates a CSV file of games to import into Team Cowboy.
+
+Games are imported from any Sportszone web site (e.g. http://www.gshockey.com/).
+If Team Cowboy API credentials are provided then Team Cowboy is queried for
+existing games in the same date range as the Sportszone schedule. Any duplicate
+games are removed from the list of games to export.
+"""
 
 import csv
 import datetime
+import getpass
 import gflags
 import logging
-import sportszone
-import sys
-import time
-import urlparse
 import pytz
 import pytz.reference
+import sportszone
+import sys
+import teamcowboy
+import time
+import urlparse
 
 FLAGS = gflags.FLAGS
 
-gflags.DEFINE_string('url', None, 'The URL of a schedule page.')
+gflags.DEFINE_string('url', None,
+                     ('The URL of a schedule page. If this is provided, then '
+                      'the other Sportszone parameters are inferred from it.'))
 gflags.DEFINE_string('sportszone_url', None, 'The base Sportszone URL.')
 gflags.DEFINE_integer('league_id', None, 'The Sportszone league ID.')
 gflags.DEFINE_integer('team_id', None, 'The Sportszone team ID.')
@@ -23,6 +33,15 @@ gflags.DEFINE_string('home_color', 'White', 'The color of the home jerseys.')
 gflags.DEFINE_string('away_color', 'Black', 'The color of the away jerseys.')
 gflags.DEFINE_multistring(
     'arena_map', [], 'A map from Sportszone to Team Cowboy arena names.')
+gflags.DEFINE_string(
+    'team_cowboy_public_key', None, 'Team Cowboy API public key.')
+gflags.DEFINE_string(
+    'team_cowboy_private_key', None, 'Team Cowboy API private key.')
+gflags.DEFINE_string('team_cowboy_username', None, 'Team Cowboy username.')
+gflags.DEFINE_string('team_cowboy_password', None,
+                     ('Team Cowboy password. If this is not provided, then a '
+                      'secure prompt will be presented.'))
+gflags.DEFINE_string('team_cowboy_team_name', None, 'Team Cowboy team name.')
 
 
 def _precondition(cond, msg):
@@ -55,6 +74,87 @@ def _create_arena_map():
     result[parts[0]] = parts[1]
 
   return result
+
+
+def _team_cowboy_games(start_dt, end_dt, num_games):
+  """Gets a batch of games from Team Cowboy in the given date range.
+
+  Args:
+    start_dt: The start date of the schedule.
+    end_dt: The end date of the schedule.
+    num_games: The number of games to include in the result set.
+
+  Returns:
+    A list of games in Team Cowboy.
+  """
+  if not (FLAGS.team_cowboy_public_key and
+          FLAGS.team_cowboy_private_key and
+          FLAGS.team_cowboy_username and
+          FLAGS.team_cowboy_team_name):
+    return []
+
+  password = FLAGS.team_cowboy_password
+  if not password:
+    password = getpass.getpass(
+        'Enter the Team Cowboy password for %s: '
+        % FLAGS.team_cowboy_username)
+
+  tc = teamcowboy.TeamCowboy(
+      FLAGS.team_cowboy_public_key, FLAGS.team_cowboy_private_key)
+  token = tc.auth_get_user_token(FLAGS.team_cowboy_username, password)
+  teams = tc.user_get_teams(token)
+
+  start_date_time = datetime.datetime.fromtimestamp(
+      time.mktime(start_dt)).strftime('%Y-%m-%d %H:%M:%S')
+  end_date_time = datetime.datetime.fromtimestamp(
+      time.mktime(end_dt)).strftime('%Y-%m-%d %H:%M:%S')
+
+  for team in teams:
+    if team['name'] == FLAGS.team_cowboy_team_name:
+      team_id = team['teamId']
+      return tc.team_get_events(
+          token, team_id, filter_type='specificDates',
+          start_date_time=start_date_time, end_date_time=end_date_time,
+          qty=num_games)
+
+  return []
+
+
+def _sportszone_games():
+  """Gets games from Sportszone.
+
+  Returns:
+    A list of games found on Sportszone.
+  """
+
+  sportszone_url = FLAGS.sportszone_url
+  league_id = FLAGS.league_id
+  team_id = FLAGS.team_id
+  season_id = FLAGS.season_id
+
+  if FLAGS.url:
+    url = urlparse.urlparse(FLAGS.url)
+    qs = urlparse.parse_qs(url.query)
+
+    if not sportszone_url:
+      sportszone_url = '%s://%s%s' % (url.scheme, url.netloc, url.path)
+
+    if not league_id:
+      league_id = int(qs.get('LeagueID', [str(league_id)])[0])
+
+    if not team_id:
+      team_id = int(qs.get('TeamID', [str(team_id)])[0])
+
+    if not season_id:
+      season_id = int(qs.get('SeasonID', [str(season_id)])[0])
+
+  _precondition(sportszone_url, 'A Sportszone URL is required.')
+  _precondition(league_id, 'A Sportszone league ID is required.')
+  _precondition(team_id, 'A Sportszone team ID is required.')
+  _precondition(season_id, 'A Sportszone season ID is required.')
+
+  sz = sportszone.Sportszone(sportszone_url, league_id)
+  return sz.get_schedule(team_id, season_id)
 
 
 def _tz():
@@ -134,37 +234,27 @@ def main(argv):
     print '%s\\nUsage: %s ARGS\\n%s' % (e, sys.argv[0], FLAGS)
     sys.exit(1)
 
-  sportszone_url = FLAGS.sportszone_url
-  league_id = FLAGS.league_id
-  team_id = FLAGS.team_id
-  season_id = FLAGS.season_id
+  sz_games = _sportszone_games()
+  if not sz_games:
+    return
 
-  if FLAGS.url:
-    url = urlparse.urlparse(FLAGS.url)
-    qs = urlparse.parse_qs(url.query)
+  start_dt = sz_games[0].game_datetime
+  end_dt = sz_games[len(sz_games) - 1].game_datetime
+  tc_games = _team_cowboy_games(start_dt, end_dt, len(sz_games))
 
-    if not sportszone_url:
-      sportszone_url = '%s://%s%s' % (url.scheme, url.netloc, url.path)
+  # We perform a simple test to find matching games: if the start date/time is
+  # the same, then we assume the entries represent the same games.
 
-    if not league_id:
-      league_id = int(qs.get('LeagueID', [str(league_id)])[0])
+  tc_games_by_dt = {}
+  for i in tc_games:
+    key = time.strptime(
+        i['dateTimeInfo']['startDateTimeLocal'], '%Y-%m-%d %H:%M:%S')
+    tc_games_by_dt[key] = i
 
-    if not team_id:
-      team_id = int(qs.get('TeamID', [str(team_id)])[0])
-
-    if not season_id:
-      season_id = int(qs.get('SeasonID', [str(season_id)])[0])
-
-  _precondition(sportszone_url, 'A Sportszone URL is required.')
-  _precondition(league_id, 'A Sportszone league ID is required.')
-  _precondition(team_id, 'A Sportszone team ID is required.')
-  _precondition(season_id, 'A Sportszone season ID is required.')
-
-  sz = sportszone.Sportszone(sportszone_url, league_id)
-  games = sz.get_schedule(team_id, season_id)
+  games = [i for i in sz_games
+           if i.game_datetime not in tc_games_by_dt]
 
   _write_csv(games, _create_arena_map())
-
 
 if __name__ == '__main__':
   main(sys.argv)
