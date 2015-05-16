@@ -4,6 +4,8 @@
 
 This tool scrapes schedule data from a Sportszone instance and exports it into a CSV suitable for uploading to Team Cowboy.
 
+If [Team Cowboy API](http://www.teamcowboy.com/api) credentials and a username are provided, then games will also be queried from Team Cowboy. Any games that are found will be excluded from the list to export to CSV.
+
 I've included a flagfile that can be used with the Greater Seattle Hockey League that contains the base URL, league ID, and arena map. Use it by specifying `--flagfile=gshl.flags` in your command line.
 
 ## Example
@@ -38,11 +40,17 @@ game    2014-10-21      09:50 PM        2014-10-21      10:50 PM        US/Pacif
 ## Usage
 
 ```
-$ exporter --help 
+$ exporter --help
 A script that generates a CSV file of games to import into Team Cowboy.
+
+Games are imported from any Sportszone web site (e.g. http://www.gshockey.com/).
+If Team Cowboy API credentials are provided then Team Cowboy is queried for
+existing games in the same date range as the Sportszone schedule. Any duplicate
+games are removed from the list of games to export.
+
 flags:
-    
-./exporter:
+
+exporter:
   --arena_map: A map from Sportszone to Team Cowboy arena names.;
     repeat this option to specify a list of values
     (default: '[]')
@@ -60,10 +68,17 @@ flags:
   --season_id: The Sportszone season ID.
     (an integer)
   --sportszone_url: The base Sportszone URL.
+  --team_cowboy_password: Team Cowboy password. If this is not provided, then a
+    secure prompt will be presented.
+  --team_cowboy_private_key: Team Cowboy API private key.
+  --team_cowboy_public_key: Team Cowboy API public key.
+  --team_cowboy_team_name: Team Cowboy team name.
+  --team_cowboy_username: Team Cowboy username.
   --team_id: The Sportszone team ID.
     (an integer)
-  --url: The URL of a schedule page.
-    
+  --url: The URL of a schedule page. If this is provided, then the other
+    Sportszone parameters are inferred from it.
+
 gflags:
   --flagfile: Insert flag definitions from the given file into the command line.
     (default: '')
