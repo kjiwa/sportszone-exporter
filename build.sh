@@ -9,9 +9,9 @@
 
 source third_party/shflags.sh
 
-DEFINE_boolean clean false "Clean the directory of build artifacts."
-DEFINE_string envname env "The virtualenv environment to create."
-DEFINE_string out exporter "The name of the output binary"
+DEFINE_boolean clean false "Clean the directory of build artifacts." c
+DEFINE_string envname env "The virtualenv environment to create." e
+DEFINE_string out exporter "The name of the output binary" o
 
 FLAGS $@ || exit $?
 eval set -- ${FLAGS_ARGV}
@@ -27,8 +27,8 @@ function clean() {
 
 # Builds the output binary.
 function build() {
-  TMP_FILE=$(mktemp -u --suffix=.zip)
-  zip ${TMP_FILE} __main__.py sportszone.py teamcowboy.py
+  TMP_FILE=$(mktemp -u).zip
+  zip ${TMP_FILE} *.py
   echo "#!/usr/bin/env python" | cat - ${TMP_FILE} > ${FLAGS_out}
   chmod +x ${FLAGS_out}
   rm ${TMP_FILE}
