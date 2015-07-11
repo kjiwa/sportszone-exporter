@@ -1,4 +1,4 @@
-"""A script that generates a CSV file of games to import into Team Cowboy.
+"""A script that generates a TSV file of games to import into Team Cowboy.
 
 Games are imported from any Sportszone web site (e.g. http://www.gshockey.com/).
 If Team Cowboy API credentials are provided then Team Cowboy is queried for
@@ -28,7 +28,7 @@ gflags.DEFINE_string('sportszone_url', None, 'The base Sportszone URL.')
 gflags.DEFINE_integer('league_id', None, 'The Sportszone league ID.')
 gflags.DEFINE_integer('team_id', None, 'The Sportszone team ID.')
 gflags.DEFINE_integer('season_id', None, 'The Sportszone season ID.')
-gflags.DEFINE_string('output_file', 'schedule.csv', 'The output file.')
+gflags.DEFINE_string('output_file', 'schedule.tsv', 'The output file.')
 gflags.DEFINE_string('home_color', 'White', 'The color of the home jerseys.')
 gflags.DEFINE_string('away_color', 'Black', 'The color of the away jerseys.')
 gflags.DEFINE_multistring(
@@ -178,15 +178,15 @@ def _tz():
   return result[pytz.reference.LocalTimezone().tzname(datetime.datetime.now())]
 
 
-def _write_csv(games, arena_map):
-  """Writes a list of games to a CSV file suitable for importing to Team Cowboy.
+def _write_tsv(games, arena_map):
+  """Writes a list of games to a TSV file suitable for importing to Team Cowboy.
 
   Args:
     games: A list of games to write.
     arena_map: A map from Sportszone to Team Cowboy arena names.
   """
-  with open(FLAGS.output_file, 'wb') as csvfile:
-    writer = csv.writer(csvfile, delimiter='\t')
+  with open(FLAGS.output_file, 'wb') as tsvfile:
+    writer = csv.writer(tsvfile, delimiter='\t')
     writer.writerow([
         'Event Type', 'Start Date', 'Start Time', 'End Date', 'End Time',
         'Timezone ID', 'Home or Away', 'Opponent/Event Title', 'Location Name',
@@ -254,7 +254,7 @@ def main(argv):
   games = [i for i in sz_games
            if i.game_datetime not in tc_games_by_dt]
 
-  _write_csv(games, _create_arena_map())
+  _write_tsv(games, _create_arena_map())
 
 if __name__ == '__main__':
   main(sys.argv)

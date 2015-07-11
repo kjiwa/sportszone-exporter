@@ -2,34 +2,34 @@
 
 ## Overview
 
-This tool scrapes schedule data from a Sportszone instance and exports it into a CSV suitable for uploading to Team Cowboy.
+This tool scrapes schedule data from a Sportszone instance and exports it into a TSV suitable for uploading to [Team Cowboy](http://www.teamcowboy.com/).
 
-If [Team Cowboy API](http://www.teamcowboy.com/api) credentials and a username are provided, then games will also be queried from Team Cowboy. Any games that are found will be excluded from the list to export to CSV.
+If [Team Cowboy API](http://www.teamcowboy.com/api) credentials and a username are provided, then games will also be queried from Team Cowboy. Any games that are found will be excluded from the list to export to TSV.
 
-I've included a flagfile that can be used with the Greater Seattle Hockey League that contains the base URL, league ID, and arena map. Use it by specifying `--flagfile=gshl.flags` in your command line.
+I've included a flagfile that can be used with the [Greater Seattle Hockey League](http://www.gshockey.com/) that contains the base URL, league ID, and arena map. Use it by specifying `--flagfile=gshl.flags` in your command line.
 
 ## Example
 
 In most cases you will execute the exporter with a URL and a file containing a map of Sportszone and Team Cowboy arena names (e.g. [gshl.flags](gshl.flags)). The URL should be to a Sportszone schedule, e.g. [Amazon's winter 2014/2015 season](http://www.gshockey.com/site/3333/page.asp?Site=9941&page=Teams&LeagueID=9941&SeasonID=39&DivisionID=100&TeamID=470&Section=Schedule). Specifically, the URL must have values for LeagueID, TeamID, and SeasonID in its query parameters.
 
-You can pass the arena names via the command line, but I find it more convenient to put them in a file that can be referenced by `--flagfile`, e.g. arenas.flags:
+You can pass the arena names via the command line, but I find it more convenient to put them in a file that can be referenced by `--flagfile`, e.g. gshl.flags:
 
-```
+```bash
 --arena_map=Castle=Castle Ice Arena
 --arena_map=Kent=Kent Valley Ice Center
 ```
 
 With these attributes we can run the exporter:
 
-```
+```bash
 $ exporter --url="http://www.gshockey.com/site/3333/page.asp?Site=9941&page=Teams&LeagueID=9941&SeasonID=39&DivisionID=100&TeamID=470&Section=Schedule"
-           --flagfile=arenas.flags
+           --flagfile=gshl.flags
 ```
 
-This will generate a file named schedule.csv in the current directory (this can be modified with the `--output_file` flag).
+This will generate a file named schedule.tsv in the current directory (this can be modified with the `--output_file` flag).
 
 ```
-$ head -n5 schedule.csv
+$ head -n5 schedule.tsv
 Event Type      Start Date      Start Time      End Date        End Time        Timezone ID     Home or Away    Opponent/Event Title    Location Name   Shirt Color     Opponent Shirt Color    Allow RSVPs     Send Reminders  Notes/Comments
 game    2014-10-02      11:00 PM        2014-10-03      12:00 AM        US/Pacific      Home    Shockers        Castle Ice Arena        White   Black   Yes     Yes
 game    2014-10-09      09:35 PM        2014-10-09      10:35 PM        US/Pacific      Home    GLY Construction        Castle Ice Arena        White   Black   Yes     Yes
@@ -41,7 +41,7 @@ game    2014-10-21      09:50 PM        2014-10-21      10:50 PM        US/Pacif
 
 ```
 $ exporter --help
-A script that generates a CSV file of games to import into Team Cowboy.
+A script that generates a TSV file of games to import into Team Cowboy.
 
 Games are imported from any Sportszone web site (e.g. http://www.gshockey.com/).
 If Team Cowboy API credentials are provided then Team Cowboy is queried for
@@ -64,7 +64,7 @@ exporter:
   --league_id: The Sportszone league ID.
     (an integer)
   --output_file: The output file.
-    (default: 'schedule.csv')
+    (default: 'schedule.tsv')
   --season_id: The Sportszone season ID.
     (an integer)
   --sportszone_url: The base Sportszone URL.
